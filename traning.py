@@ -17,28 +17,22 @@ model.learn(total_timesteps=50000)
 
 # Probar el modelo 
 print("Probando el agente entrenado...")
-obs = env.reset()  # Resetear el ambiente y obtiene la observación inicial
-
-# Verifica si la observación es una tupla (nueva estructura de retorno de reset() en versiones recientes de Gym)
-if isinstance(obs, tuple):  # Si reset() devuelve una tupla, se separan la observación y la información adicional
-    obs, _ = obs
+obs, _ = env.reset()  # Resetear el ambiente y obtiene la observación inicial
 
 for _ in range(1000):
     action, _states = model.predict(obs)
     action = int(action)
-    obs, rewards, done, info = env.step(action)  
+    obs, rewards, terminated, truncated, info = env.step(action)
+    done = terminated or truncated
     
     # Renderizar el entorno (mostrar visualmente el progreso del agente)
     env.render()
     
     if done:
-        obs = env.reset()  # Reiniciar el entorno si el episodio termina
-        
-        # Manejar el retorno de reset() para versiones modernas de Gym (hay nuevas pesas)
-        if isinstance(obs, tuple):
-            obs, _ = obs
+        obs, _ = env.reset()  # Reiniciar el entorno si el episodio termina
 
 # Guardar el modelo entrenado en una ruta específica
-model.save("USER_PATH")
+model.save("PATH_SAVE")
 
 env.close()  # Cerrar el entorno
+
