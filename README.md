@@ -1,7 +1,7 @@
 # M-Eureka 
 - Pre-prototipo
 - Eureka simplified (https://eureka-research.github.io/)
-- Ubuntu 24.04
+- Ubuntu 24.04, 22.04
 
 ## Requisitos
 * Python 3.10+
