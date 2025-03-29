@@ -2,7 +2,7 @@ import gymnasium as gym
 from stable_baselines3 import PPO
 
 # Cargar el modelo desde la ubicación (puedes cambiarla)
-model_path = "/home/joaco/Escritorio/vscode/cartpole_ppo" # Ruta donde se encuentra el modelo guardado
+model_path = "USER_PATH" # Ruta donde se encuentra el modelo guardado
 model = PPO.load(model_path) # Carga el modelo PPO previamente entrenado
 
 # Crear el entorno de CartPole con renderización en modo "human" (renderizar para visualización humana)
