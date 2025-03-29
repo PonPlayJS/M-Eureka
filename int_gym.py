@@ -29,4 +29,3 @@ class CustomCartPoleEnv(gym.Env):
 
     def close(self):
         self.env.close()
-
