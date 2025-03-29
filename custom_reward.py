@@ -1,9 +1,21 @@
-#politica de ejemplo
-
-def custom_reward(state):
-    pole_angle = state[2]  # Ángulo del poste
-    angle_penalty = abs(pole_angle)  # Penalización por desviación de la vertical
+def custom_reward(observation):
+    angle = observation[2]
+    x_pos = observation[0]
+    reward = 1.0
     
-    reward = 1.0 - angle_penalty  # Recompensa base con penalización
+    # Penalización por ángulo excesivo (escalado con el ángulo)
+    angle_penalty = min(max(abs(angle) * 5, 0), 2)
+    reward -= angle_penalty
     
-    return max(reward, 0)  # Asegurar que la recompensa no sea negativa
+    # Penalización por desviación horizontal extrema
+    if abs(x_pos) > 2.4:
+        reward -= 2.0
+    
+    # Bonus por mantener el poste cerca de la vertical
+    if abs(angle) < 0.1:
+        reward += 0.5
+    
+    # Bonus de supervivencia (aumenta con el tiempo)
+    reward += 0.01
+    
+    return float(reward)
