@@ -2,10 +2,16 @@ from stable_baselines3 import PPO
 from custom_reward import custom_reward 
 import gymnasium as gym 
 from int_gym import CustomCartPoleEnv
+import os
+from pathlib import Path
+
+# --- Rutas ---
+ROOT_DIR = Path(os.getcwd())
 
 env = CustomCartPoleEnv()
 
 print("Creando el entorno...")
+# Crear el modelo con una política personalizada usando PPO
 model = PPO(
     "MlpPolicy",
     env,
@@ -18,7 +24,7 @@ print("Entrenando agente...")
 model.learn(total_timesteps=50000)
 
 print("Guardando el modelo en 'ppo_custom_cartpole.zip'...")
-model.save("/home/joaquin/M-Eureka/videos/ppo_custom_cartpole.zip")
+model.save("../videos/ppo_custom_cartpole.zip")
 
 # Probar el modelo entrenado
 print("Probando el agente entrenado...")
