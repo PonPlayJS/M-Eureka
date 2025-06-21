@@ -1,15 +1,11 @@
-# traning.py (versión corregida y mejorada)
-
 from stable_baselines3 import PPO
 from custom_reward import custom_reward 
 import gymnasium as gym 
-# import gymnasium_robotics
 from int_gym import CustomCartPoleEnv
 
 env = CustomCartPoleEnv()
 
 print("Creando el entorno...")
-# Crear el modelo con una política personalizada usando PPO
 model = PPO(
     "MlpPolicy",
     env,
@@ -21,8 +17,6 @@ model = PPO(
 print("Entrenando agente...")
 model.learn(total_timesteps=50000)
 
-# Guardar el modelo entrenado
-# -> CORRECCIÓN: Usar un nombre de archivo descriptivo.
 print("Guardando el modelo en 'ppo_custom_cartpole.zip'...")
 model.save("/home/joaquin/M-Eureka/videos/ppo_custom_cartpole.zip")
 
