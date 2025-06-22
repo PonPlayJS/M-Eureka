@@ -41,7 +41,7 @@ python meureka.py
 ```
 El modelo entrenado se guardará automáticamente como "ppo_custom_carpole.zip" en la carpeta "videos" del proyecto.
 
-![CartPole Visualization](https://github.com/user-attachments/assets/c899c84a-e098-45e2-9579-eec26a2d510d)
+![image](https://github.com/user-attachments/assets/0d7991a9-fda1-4e92-bba9-64d9c041ecb8)
 
 ## Cambios recientes
 - ¡Ya no se necesita usar el archivo BASH, solo ejecuta "meureka.py" 
