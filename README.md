@@ -4,7 +4,6 @@
 
 [![Project Status](https://img.shields.io/badge/status-pre--prototype-yellow)](https://github.com/PonPlayJS/M-Eureka)
 [![Python](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 **M-Eureka** is a project that aims to distill the key concepts of the innovative "Eureka" paper into a simpler, more accessible format. It uses Large Language Models (LLMs), in this case via the **DeepSeek** API, to automatically generate reward functions for Reinforcement Learning (RL) tasks.
 
@@ -102,11 +101,6 @@ Contributions are welcome! If you have ideas for improving the project, feel fre
 * To **NVIDIA Research** for publishing the paper [Eureka: Human-Level Reward Design via Coding Large Language Models](https://eureka-research.github.io/).
 
 ---
-
-## 📜 License
-
-This project is distributed under the MIT License. See the `LICENSE` file for more details.
-
 
 
 
