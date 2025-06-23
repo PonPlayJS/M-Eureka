@@ -40,7 +40,7 @@ Make sure you have the following installed:
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/PonPlayJS/M-Eureka.git](https://github.com/PonPlayJS/M-Eureka.git)
+    git clone https://github.com/PonPlayJS/M-Eureka
     cd M-Eureka
     ```
 
