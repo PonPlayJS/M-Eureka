@@ -1,9 +1,9 @@
 # M-Eureka 
-- Pre-prototipo
+- Pre-prototype
 - Eureka simplified (https://eureka-research.github.io/)
 - Ubuntu 24.04
 
-## Requisitos
+## Requirements
 * Python 3.10
 * pip
 * miniconda
@@ -12,10 +12,10 @@
 ## Configuración del entorno
 ```
 conda create --n em python=3.10
-conda activate em  # puedes desactivarlo con "conda deactivate"
+conda activate em  # you can deactivate it with "conda deactivate"
 ```
 
-## Instalación de dependencias
+## Dependency Installation
 ```
 pip install gymnasium stable-baselines3 
 pip install openai==0.28
@@ -24,27 +24,28 @@ pip install numpy==1.23.1
 pip install pygame
 ```
 
-## Clonar repositorio
+## Clone Repository
 ```
 git clone https://github.com/PonPlayJS/M-Eureka
 cd M-Eureka
 ```
 
-## Configuración
-1. Edita meureka/meureka.py y agrega tu API key de DeepSeek en la línea 13.
-2. El entorno personalizado CartPole está configurado en int_gym.py
-3. La función de recompensa personalizada está en custom_reward.py
+## Configuration
+1. Edit meureka/meureka.py and add your DeepSeek API key on line 13.
+2. The custom CartPole environment is configured in int_gym.py
+3. The custom reward function is in custom_reward.py
 
-## Entrenamiento
+## Training
 ```
 python meureka.py
 ```
-El modelo entrenado se guardará automáticamente como "ppo_custom_carpole.zip" en la carpeta "videos" del proyecto.
+The trained model will be automatically saved as "ppo_custom_carpole.zip" in the "videos" folder of the project.
 
-![image](https://github.com/user-attachments/assets/0d7991a9-fda1-4e92-bba9-64d9c041ecb8)
+![alt text](image.png)
 
-## Cambios recientes
-- ¡Ya no se necesita usar el archivo BASH, solo ejecuta "meureka.py" 
+## Recent Changes
+- If a reward policy is not executed, the entire process is redone.
 
-
+## Coming soon
+- The code will soon be adapted to work with environments in Mujoco, RoboCup and Isaac Sim.
 
