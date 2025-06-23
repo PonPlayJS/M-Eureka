@@ -1,0 +1,27 @@
+Generate a custom Python reward function for the CartPole-v1 environment.
+The function should penalize the agent if the pole's angle deviates too much from the vertical,
+and reward it if it keeps the pole balanced for longer.
+Provide ONLY the Python code for the function, without additional explanations, not even the "```"`
+additionally, it must have a similar format to this (but hopefully much better):
+
+def custom_reward(observation): # can only have observation, otherwise it gives an error
+    angle = observation[2]
+    x_pos = observation[0]
+    reward = 1.0
+    
+    # Penalty for excessive angle (scaled with the angle)
+    angle_penalty = min(max(abs(angle) * 5, 0), 2)
+    reward -= angle_penalty
+    
+    # Penalty for extreme horizontal deviation
+    if abs(x_pos) > 2.4:
+        reward -= 2.0
+    
+    # Bonus for keeping the pole near vertical
+    if abs(angle) < 0.1:
+        reward += 0.5
+    
+    # Survival bonus (increases over time)
+    reward += 0.01
+    
+    return float(reward)
