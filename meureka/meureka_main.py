@@ -11,7 +11,7 @@ from openai import OpenAI
 # --- OpenAI Client Configuration for DeepSeek ---
 try:
     client = OpenAI(
-        api_key="sk-9db633f32dce4fa585bde151fe4631c7", # (example api key) DeepSeek Api key
+        api_key=os.getenv("DS_API_KEY"), # Your API Key
         base_url="https://api.deepseek.com/v1", # Base URL for DeepSeek
     )
 except Exception as e:
