@@ -47,5 +47,5 @@ The trained model will be automatically saved as "ppo_custom_carpole.zip" in the
 - If a reward policy is not executed, the entire process is redone.
 
 ## Coming soon
-- The code will soon be adapted to work with environments in Mujoco, RoboCup and Isaac Sim.
+- The code will soon be adapted to work with environments in RoboCup, Mujoco, and Isaac Sim.
 
