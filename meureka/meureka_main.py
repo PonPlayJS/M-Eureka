@@ -7,12 +7,14 @@ from pathlib import Path
 import gymnasium as gym
 from stable_baselines3 import PPO
 from openai import OpenAI
+from PyPDF2 import PdfReader
 
 # --- OpenAI Client Configuration for DeepSeek ---
+# It's recommended to use environment variables for the API Key for security.
 try:
     client = OpenAI(
-        api_key=os.getenv("DS_API_KEY"), # Your API Key
-        base_url="https://api.deepseek.com/v1", # Base URL for DeepSeek
+        api_key=os.getenv("DS_API_KEY"), # Will use the environment variable or the default key.
+        base_url="https://api.deepseek.com/v1",
     )
 except Exception as e:
     print(f"Error configuring DeepSeek client: {e}")
@@ -20,9 +22,51 @@ except Exception as e:
 
 # --- Paths ---
 ROOT_DIR = Path(os.getcwd())
+# Path for the main task prompt.
 PROMPT_FILE_PATH = ROOT_DIR / ".." / "prompts" / "cartpole" / "test.txt"
+# List of paths to the PDFs that will serve as context.
+PDF_PATHS = [
+    ROOT_DIR / ".." / "pdf" / "1.pdf",
+    ROOT_DIR / ".." / "pdf" / "2.pdf",
+    ROOT_DIR / ".." / "pdf" / "3.pdf",
+]
 
 # --- Functions ---
+
+def read_pdfs_text(pdf_paths):
+    """
+    Reads a list of PDF files and extracts all their text.
+    
+    Args:
+        pdf_paths (list): A list of Path objects to the PDF files.
+
+    Returns:
+        str: A string with all the concatenated text from the PDFs.
+    """
+    print("Reading PDF files to get context...")
+    full_text = ""
+    for pdf_path in pdf_paths:
+        try:
+            if not pdf_path.exists():
+                print(f"Warning: PDF file not found at: {pdf_path}")
+                continue
+            
+            with open(pdf_path, 'rb') as file:
+                reader = PdfReader(file)
+                for i, page in enumerate(reader.pages):
+                    page_text = page.extract_text()
+                    if page_text:
+                        full_text += f"\n--- Content from {pdf_path.name}, Page {i+1} ---\n"
+                        full_text += page_text
+            print(f"  - Successfully read: {pdf_path.name}")
+        except Exception as e:
+            print(f"Error reading file {pdf_path.name}: {e}")
+    
+    if not full_text:
+        print("Warning: Could not extract text from any PDF.")
+        
+    return full_text
+
 def clean_code_output(code):
     """Removes ``` markers and unwanted content from generated code."""
     patterns = [
@@ -39,9 +83,9 @@ def generate_reward_policy(prompt_content):
     """Generates a reward policy using the DeepSeek API."""
     try:
         response = client.chat.completions.create(
-            model="deepseek-chat", 
+            model="deepseek-chat",
             messages=[
-                {"role": "system", "content": "You are an expert assistant in reinforcement learning."},
+                {"role": "system", "content": "You are an expert reinforcement learning assistant. Generate only the requested Python code."},
                 {"role": "user", "content": prompt_content}
             ]
         )
@@ -51,139 +95,113 @@ def generate_reward_policy(prompt_content):
         print(f"Error generating reward policy: {e}")
         return None
 
-def open_training_process():
-    """Starts the 'training.py' script in a separate process."""
-    print("Opening the training process (training.py)...")
+def run_training_process():
+    """Starts the training script in a separate process."""
+    print("Starting the training process (training.py)...")
     try:
-        script_path = f'{ROOT_DIR}/traning.py' 
+        # Assumes the correct script name is "training.py"
+        script_path = ROOT_DIR / 'training.py'
         
         if not os.path.exists(script_path):
             print(f"Error: The training script '{script_path}' was not found.")
-            print("Make sure 'training.py' exists in the same directory as this script.")
             return None
 
-        # Start the subprocess
-        process = subprocess.Popen(['python', '-u', script_path])
+        process = subprocess.Popen(['python', '-u', str(script_path)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         print(f"Training process started with PID: {process.pid}")
 
-        # Wait for the process to finish
+        # Stream stdout and stderr
         while process.poll() is None:
             print("The training process is still running... waiting 10 seconds.")
             time.sleep(10)
 
+        stdout, stderr = process.communicate()
+        if stdout:
+            print(f"Training script stdout:\n{stdout}")
+        if stderr:
+            print(f"Training script stderr:\n{stderr}")
+
+
         print(f"The training process has finished with exit code: {process.returncode}")
-        return process # returns the process object
+        return process
     except FileNotFoundError:
         print(f"Error: 'python' executable or script '{script_path}' not found.")
-        print("Make sure Python is in your PATH and the script exists.")
         return None
     except Exception as e:
         print(f'An unexpected error occurred while trying to open the process: {e}')
         return None
-    
-def view_trained_model():
-    """Visualizes the behavior of a pre-trained PPO model in CartPole."""
+
+def view_trained_agent():
+    """Visualizes the behavior of a pre-trained PPO model."""
+    print("Starting visualization of the trained agent...")
     try:
-        model_path = f'{ROOT_DIR}/../videos/ppo_custom_cartpole.zip' 
+        model_path = ROOT_DIR / '..' / 'videos' / 'ppo_custom_cartpole.zip'
 
         if not os.path.exists(model_path):
             print(f"Error: The model file was not found at: {model_path}")
-            print("Make sure the model has been trained and saved correctly in that path.")
-            return None
+            return
 
         model = PPO.load(model_path)
         env = gym.make("CartPole-v1", render_mode="human")
-        observation, info = env.reset()
+        observation, _ = env.reset()
 
-        print("Starting model visualization. Observe how it plays!")
         for _ in range(1000):
             action, _ = model.predict(observation, deterministic=True)
-            observation, reward, terminated, truncated, info = env.step(action)
+            observation, _, terminated, truncated, _ = env.step(action)
 
             if terminated or truncated:
-                observation, info = env.reset()
+                observation, _ = env.reset()
 
         env.close()
         print("Model visualization finished.")
     except Exception as e:
         print(f'An unexpected error occurred during visualization: {e}')
-    return None
 
 def execute_training_attempt():
     """
-    Performs ONE complete training attempt.
-    Generates reward, saves it, and executes the training script.
-    Returns the finished process object.
+    Performs ONE complete training attempt, using context from PDFs.
     """
-    # 1. Read the prompt (this part does not change)
-    prompt_text_content = ""
+    # 1. Read the main task prompt.
     try:
         with open(PROMPT_FILE_PATH, 'r', encoding='utf-8') as archive:
-            prompt_text_content = archive.read()
+            base_prompt_text = archive.read()
     except Exception as e:
         print(f"Critical error reading the prompt: {e}")
-        return None # Returns None if the prompt cannot even be read
+        return None
 
-    # 2. Generate and save the reward policy (does not change)
-    if prompt_text_content:
-        custom_reward = generate_reward_policy(prompt_text_content)
-        if custom_reward:
-            with open("custom_reward.py", "w", encoding='utf-8') as file:
-                file.write(custom_reward)
-            print("Reward policy generated/updated for this attempt.")
-        else:
-            print("Could not generate reward policy for this attempt.")
-            return None
+    # 2. Read the text from PDFs to use as context.
+    pdf_context = read_pdfs_text(PDF_PATHS)
+
+    # 3. Combine the PDF context and the task prompt.
+    combined_prompt = f"""
     
-    # 3. Execute the training process and return it
-    #    NOTE: It no longer checks the result or calls view_train() here.
-    print("\n--- Executing training process ---")
-    process_obj = open_training_process()
-    return process_obj
+    --- REQUESTED TASK ---
+    {base_prompt_text}
+    --- END OF TASK 
+    
+    --- PDF DOCUMENT CONTEXT ---
+    {pdf_context}
+    --- END OF CONTEXT ---
 
-### Main script logic
-def main_logic():
-    prompt_text_content = ""
-    try:
-        with open(PROMPT_FILE_PATH, 'r', encoding='utf-8') as archive:
-            prompt_text_content = archive.read()
-            print("Prompt content read:\n" + prompt_text_content[:3000] + "...") # Display only the first 200 characters
-    except FileNotFoundError:
-        print(f"Error: The prompt file was not found at '{PROMPT_FILE_PATH}'. Make sure the path is correct and the file exists.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"An error occurred while reading the prompt file: {e}")
-        sys.exit(1)
+    """
 
-    if prompt_text_content:
-        custom_reward = generate_reward_policy(prompt_text_content)
-    else:
-        custom_reward = None
+    print("\n Prompt: ...")
+    print(base_prompt_text[:1] + "...")
 
+    # 4. Generate and save the reward policy.
+    custom_reward = generate_reward_policy(combined_prompt)
     if custom_reward:
-        file_name = "custom_reward.py"
-        try:
-            with open(file_name, "w", encoding='utf-8') as file:
-                file.write(custom_reward)
-            print(f"\nReward policy saved to '{file_name}' successfully.")
-        except Exception as e:
-            print(f"Error saving reward policy to '{file_name}': {e}")
-            sys.exit(1)
+        with open("custom_reward.py", "w", encoding='utf-8') as file:
+            file.write(custom_reward)
+        print("Reward policy generated/updated for this attempt.")
     else:
-        print("\nCould not generate reward policy. No file will be saved.")
+        print("Could not generate reward policy for this attempt.")
+        return None
+    
+    # 5. Execute the training process.
+    process = run_training_process()
+    return process
 
-    print("\n--- Executing training process ---")
-    training_process = open_training_process()
-
-    if training_process and training_process.returncode == 0:
-        print("\n--- Starting training visualization ---")
-        view_trained_model()
-    else:
-        print("failed")
-    print("\nEnd of main script.")
-    return None
-
-# Replace your if __name__ == "__main__" block with this improved version.
+# --- Main Entry Point ---
 
 if __name__ == "__main__":
     
@@ -197,27 +215,23 @@ if __name__ == "__main__":
         print(f"--- TRAINING ATTEMPT N° {current_attempt}/{max_attempts} ---")
         print("="*50)
 
-        # Calls the function that only makes one attempt
         finished_process = execute_training_attempt()
 
-        # Checks the result of the attempt
         if finished_process and finished_process.returncode == 0:
-            print(f"\nSUCCESS in attempt N° {current_attempt}.")
+            print(f"\nSUCCESS on attempt N° {current_attempt}.")
             training_successful = True
         else:
-            print(f"\nFAILURE in attempt N° {current_attempt}.")
+            print(f"\nFAILURE on attempt N° {current_attempt}.")
             current_attempt += 1
             if current_attempt <= max_attempts:
                 print("Waiting 5 seconds before retrying...")
                 time.sleep(5)
 
-    # --- FINAL Actions after exiting the loop ---
+    # --- Final Actions ---
     print("\n" + "="*50)
-    # Only if the final flag is True, we visualize.
     if training_successful:
         print("Training process finished successfully.")
-        print("--- Starting visualization of the trained model ---")
-        view_trained_model()
+        view_trained_agent()
     else:
         print(f"The process failed after {max_attempts} attempts. Nothing will be visualized.")
     print("="*50)
