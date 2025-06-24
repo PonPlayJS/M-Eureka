@@ -68,7 +68,7 @@ Make sure you have the following installed:
 Once the setup is complete, you can start the training process with a single command:
 
 ```bash
-python meureka/meureka.py
+python meureka/meureka_main.py
 ```
 
 The script will handle:
