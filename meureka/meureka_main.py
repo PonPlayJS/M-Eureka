@@ -100,7 +100,7 @@ def run_training_process():
     print("Starting the training process (training.py)...")
     try:
         # Assumes the correct script name is "training.py"
-        script_path = ROOT_DIR / 'training.py'
+        script_path = ROOT_DIR / 'meureka' /'training.py'
         
         if not os.path.exists(script_path):
             print(f"Error: The training script '{script_path}' was not found.")
@@ -134,7 +134,7 @@ def view_trained_agent():
     """Visualizes the behavior of a pre-trained PPO model."""
     print("Starting visualization of the trained agent...")
     try:
-        model_path = ROOT_DIR / '..' / 'videos' / 'ppo_custom_cartpole.zip'
+        model_path = ROOT_DIR / 'videos' / 'ppo_custom_cartpole.zip'
 
         if not os.path.exists(model_path):
             print(f"Error: The model file was not found at: {model_path}")
