@@ -190,7 +190,7 @@ def execute_training_attempt():
     # 4. Generate and save the reward policy.
     custom_reward = generate_reward_policy(combined_prompt)
     if custom_reward:
-        with open("custom_reward.py", "w", encoding='utf-8') as file:
+        with open("meureka/custom_reward.py", "w", encoding='utf-8') as file:
             file.write(custom_reward)
         print("Reward policy generated/updated for this attempt.")
     else:
