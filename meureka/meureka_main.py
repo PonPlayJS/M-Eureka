@@ -23,7 +23,7 @@ except Exception as e:
 # --- Paths ---
 ROOT_DIR = Path(os.getcwd())
 # Path for the main task prompt.
-PROMPT_FILE_PATH = ROOT_DIR / ".." / "prompts" / "cartpole" / "test.txt"
+PROMPT_FILE_PATH = ROOT_DIR / "prompts" / "cartpole" / "test.txt"
 # List of paths to the PDFs that will serve as context.
 PDF_PATHS = [
     ROOT_DIR / ".." / "pdf" / "1.pdf",
