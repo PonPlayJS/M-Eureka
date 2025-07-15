@@ -9,7 +9,7 @@
 
 This pre-prototype focuses on the classic `CartPole` environment, demonstrating the main workflow: AI-driven reward code generation, evaluation, and agent training.
 
-![Trained Agent Demonstration](https://github.com/PonPlayJS/M-Eureka/raw/main/image.png)
+![Trained Agent Demonstration](https://github.com/PonPlayJS/M-Eureka/blob/main/img/image.png)
 
 ---
 
